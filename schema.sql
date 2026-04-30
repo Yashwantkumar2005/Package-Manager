@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS package_installations (
     is_current BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE,
     -- Ensure only one current version per package
-    UNIQUE KEY unique_current_version (package_id, is_current) WHERE (is_current = TRUE)
+    UNIQUE KEY unique_current_version (package_id, is_current)
 );
 
 -- Index for faster lookups
