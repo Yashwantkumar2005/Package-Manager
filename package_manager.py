@@ -105,6 +105,16 @@ class PackageManager:
         result = self.db.execute_query(query, (package['id'],))
         return result if result else []
 
+    def get_installed_versions_by_id(self, package_id: int) -> List[Dict]:
+        """Get all installed versions for a package by ID"""
+        query = """
+        SELECT * FROM package_installations
+        WHERE package_id = %s
+        ORDER BY installed_at DESC
+        """
+        result = self.db.execute_query(query, (package_id,))
+        return result if result else []
+
     def get_current_version(self, package_name: str) -> Optional[Dict]:
         """Get the currently installed version for a package"""
         package = self.get_package(package_name)
