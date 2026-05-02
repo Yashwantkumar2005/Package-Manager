@@ -26,7 +26,7 @@ def test_database_manager():
     assert db.user == 'root'
     assert db.password == ''
     assert db.port == 3306
-    print("✓ DatabaseManager instantiation works")
+    print("[PASS] DatabaseManager instantiation works")
 
     # Test with custom parameters
     db_custom = DatabaseManager(host='test-host', database='test-db',
@@ -36,7 +36,7 @@ def test_database_manager():
     assert db_custom.user == 'test-user'
     assert db_custom.password == 'test-pass'
     assert db_custom.port == 3307
-    print("✓ DatabaseManager custom parameters work")
+    print("[PASS] DatabaseManager custom parameters work")
 
 def test_package_manager_structure():
     """Test the PackageManager class structure"""
@@ -53,13 +53,13 @@ def test_package_manager_structure():
         pm = PackageManager()
         assert pm.db == mock_db_instance
         MockDBManager.assert_called_once()
-        print("✓ PackageManager instantiation with default DB works")
+        print("[PASS] PackageManager instantiation with default DB works")
 
     # Test instantiation with provided db manager
     mock_db = Mock()
     pm = PackageManager(db_manager=mock_db)
     assert pm.db == mock_db
-    print("✓ PackageManager instantiation with provided DB works")
+    print("[PASS] PackageManager instantiation with provided DB works")
 
 def test_schema():
     """Test that the schema is valid SQL"""
@@ -74,7 +74,7 @@ def test_schema():
     assert 'CREATE TABLE IF NOT EXISTS package_installations' in schema_content
     assert 'PRIMARY KEY' in schema_content
     assert 'FOREIGN KEY' in schema_content
-    print("✓ Schema contains required SQL statements")
+    print("[PASS] Schema contains required SQL statements")
 
 def test_requirements():
     """Test that requirements.txt exists and has content"""
@@ -86,7 +86,7 @@ def test_requirements():
 
     assert len(content) > 0
     assert 'mysql-connector-python' in content
-    print("✓ requirements.txt exists and contains mysql-connector-python")
+    print("[PASS] requirements.txt exists and contains mysql-connector-python")
 
 def main():
     """Run all tests"""
@@ -98,7 +98,7 @@ def main():
         test_schema()
         test_requirements()
 
-        print("\n🎉 All tests passed! The package manager structure is valid.")
+        print("\n[SUCCESS] All tests passed! The package manager structure is valid.")
         print("\nNote: Actual database functionality tests require MySQL to be running.")
         print("To test with a real database:")
         print("1. Install and start MySQL server")
@@ -106,7 +106,7 @@ def main():
         print("3. Run: python -c \"from database import DatabaseManager; db=DatabaseManager(); db.connect(); print('Connected!')\"")
 
     except Exception as e:
-        print(f"\n❌ Test failed: {e}")
+        print(f"\n[FAIL] Test failed: {e}")
         import traceback
         traceback.print_exc()
         return 1

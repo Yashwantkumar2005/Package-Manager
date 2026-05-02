@@ -1,11 +1,12 @@
-from database import DatabaseManager
+from database import DatabaseManager, get_db_connection
 from typing import List, Dict, Optional
 
 class PackageManager:
     def __init__(self, db_manager: DatabaseManager = None):
-        self.db = db_manager or DatabaseManager()
-        if not self.db.connection or not self.db.connection.is_connected():
-            self.db.connect()
+        self.db = db_manager or get_db_connection()
+        if not self.db or not self.db.connection or not self.db.connection.is_connected():
+            if self.db:
+                self.db.connect()
 
     def add_package(self, name: str, description: str = None) -> bool:
         """Add a new package to the system"""

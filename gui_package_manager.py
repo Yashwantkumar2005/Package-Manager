@@ -26,7 +26,8 @@ class PackageManagerGUI:
             self.pm = None
 
         self.create_widgets()
-        self.refresh_package_list()
+        if self.pm:
+            self.refresh_package_list()
 
     def create_widgets(self):
         # Main frame
