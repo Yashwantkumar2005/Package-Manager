@@ -56,18 +56,16 @@ class PackageManager:
             # Version already exists, mark it as current
             return self.set_current_version(package['id'], version_number)
 
-        # Install new version
+        # Install new version: first unset any other current versions, then insert
+        self._unset_other_current_versions(package['id'], version_number)
+
+        # Install new version as current
         query = """
         INSERT INTO package_installations (package_id, version_number, is_current)
         VALUES (%s, %s, %s)
         """
         result = self.db.execute_query(query, (package['id'], version_number, True))
-        if result is not None and result > 0:
-            # If this was set as current, unset any other current versions
-            if True:  # is_current
-                self._unset_other_current_versions(package['id'], version_number)
-            return True
-        return False
+        return result is not None and result > 0
 
     def set_current_version(self, package_id: int, version_number: str) -> bool:
         """Set a specific version as the current version for a package"""
@@ -91,6 +89,15 @@ class PackageManager:
         WHERE package_id = %s AND version_number != %s
         """
         self.db.execute_query(query, (package_id, exclude_version))
+
+    def _unset_all_current_versions(self, package_id: int):
+        """Unset current status for all versions of a package"""
+        query = """
+        UPDATE package_installations
+        SET is_current = FALSE
+        WHERE package_id = %s
+        """
+        self.db.execute_query(query, (package_id,))
 
     def get_installed_versions(self, package_name: str) -> List[Dict]:
         """Get all installed versions for a package"""
