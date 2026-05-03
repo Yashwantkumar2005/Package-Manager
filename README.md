@@ -36,7 +36,7 @@ A desktop application for managing software packages and their versions, built w
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Yashwantkumar2005/Package-Manager.git
    cd Package-manager
    ```
 
