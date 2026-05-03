@@ -10,11 +10,18 @@ class PackageManagerGUI:
         self.root.geometry("800x600")
 
         # Set environment variables for database connection
-        os.environ['DB_HOST'] = 'localhost'
-        os.environ['DB_USER'] = 'root'
-        os.environ['DB_PASSWORD'] = '1234'
-        os.environ['DB_NAME'] = 'package_manager'
-        os.environ['DB_PORT'] = '3306'
+        # NOTE: Users should override these with their own credentials when running the application
+        # Example: DB_HOST=localhost DB_USER=myuser DB_PASSWORD=mypass DB_NAME=package_manager DB_PORT=3306 python gui_package_manager.py
+        if not os.environ.get('DB_HOST'):
+            os.environ['DB_HOST'] = 'localhost'
+        if not os.environ.get('DB_USER'):
+            os.environ['DB_USER'] = 'root'
+        if not os.environ.get('DB_PASSWORD'):
+            os.environ['DB_PASSWORD'] = ''  # Empty default - users should set their own
+        if not os.environ.get('DB_NAME'):
+            os.environ['DB_NAME'] = 'package_manager'
+        if not os.environ.get('DB_PORT'):
+            os.environ['DB_PORT'] = '3306'
 
         # Initialize package manager
         try:
