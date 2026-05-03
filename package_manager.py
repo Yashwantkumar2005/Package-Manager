@@ -4,9 +4,9 @@ from typing import List, Dict, Optional
 class PackageManager:
     def __init__(self, db_manager: DatabaseManager = None):
         self.db = db_manager or get_db_connection()
-        if not self.db or not self.db.connection or not self.db.connection.is_connected():
-            if self.db:
-                self.db.connect()
+        # get_db_connection() already handles connection, so we only need to connect if it failed
+        if not self.db:
+            raise ConnectionError("Failed to establish database connection")
 
     def add_package(self, name: str, description: str = None) -> bool:
         """Add a new package to the system"""
@@ -115,13 +115,7 @@ class PackageManager:
 
     def get_installed_versions_by_id(self, package_id: int) -> List[Dict]:
         """Get all installed versions for a package by ID"""
-        query = """
-        SELECT * FROM package_installations
-        WHERE package_id = %s
-        ORDER BY installed_at DESC
-        """
-        result = self.db.execute_query(query, (package_id,))
-        return result if result else []
+        return self.get_installed_versions(self.get_package_by_id(package_id)['name']) if self.get_package_by_id(package_id) else []
 
     def get_current_version(self, package_name: str) -> Optional[Dict]:
         """Get the currently installed version for a package"""
