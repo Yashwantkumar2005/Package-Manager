@@ -56,8 +56,8 @@ class PackageManager:
             # Version already exists, mark it as current
             return self.set_current_version(package['id'], version_number)
 
-        # Install new version: first unset any other current versions, then insert
-        self._unset_other_current_versions(package['id'], version_number)
+        # Install new version: first unset any current versions, then insert
+        self._unset_all_current_versions(package['id'])
 
         # Install new version as current
         query = """
