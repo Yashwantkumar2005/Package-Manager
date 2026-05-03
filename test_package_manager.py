@@ -46,13 +46,14 @@ def test_package_manager_structure():
     from database import DatabaseManager
 
     # Test instantiation with default db manager
-    with patch('package_manager.DatabaseManager') as MockDBManager:
+    with patch('package_manager.get_db_connection') as MockGetDB:
         mock_db_instance = Mock()
-        MockDBManager.return_value = mock_db_instance
+        mock_db_instance.connect.return_value = True
+        MockGetDB.return_value = mock_db_instance
 
         pm = PackageManager()
         assert pm.db == mock_db_instance
-        MockDBManager.assert_called_once()
+        MockGetDB.assert_called_once()
         print("[PASS] PackageManager instantiation with default DB works")
 
     # Test instantiation with provided db manager

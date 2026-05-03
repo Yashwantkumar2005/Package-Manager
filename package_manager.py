@@ -1,5 +1,6 @@
 from database import DatabaseManager, get_db_connection
 from typing import List, Dict, Optional
+import re
 
 class PackageManager:
     def __init__(self, db_manager: DatabaseManager = None):
@@ -10,6 +11,10 @@ class PackageManager:
 
     def add_package(self, name: str, description: str = None) -> bool:
         """Add a new package to the system"""
+        if not self._validate_package_name(name):
+            print(f"Invalid package name: {name}")
+            return False
+
         query = "INSERT INTO packages (name, description) VALUES (%s, %s)"
         result = self.db.execute_query(query, (name, description))
         return result is not None and result > 0
@@ -38,6 +43,13 @@ class PackageManager:
 
     def install_version(self, package_name: str, version_number: str) -> bool:
         """Install a version of a package"""
+        if not self._validate_package_name(package_name):
+            print(f"Invalid package name: {package_name}")
+            return False
+        if not self._validate_version_number(version_number):
+            print(f"Invalid version number: {version_number}")
+            return False
+
         # First get the package
         package = self.get_package(package_name)
         if not package:
@@ -57,29 +69,61 @@ class PackageManager:
             return self.set_current_version(package['id'], version_number)
 
         # Install new version: first unset any current versions, then insert
-        self._unset_all_current_versions(package['id'])
+        try:
+            with self.db.transaction():
+                self._unset_all_current_versions(package['id'])
 
-        # Install new version as current
-        query = """
-        INSERT INTO package_installations (package_id, version_number, is_current)
-        VALUES (%s, %s, %s)
-        """
-        result = self.db.execute_query(query, (package['id'], version_number, True))
-        return result is not None and result > 0
+                # Install new version as current
+                query = """
+                INSERT INTO package_installations (package_id, version_number, is_current)
+                VALUES (%s, %s, %s)
+                """
+                result = self.db.execute_query(query, (package['id'], version_number, True))
+                return result is not None and result > 0
+        except Exception as e:
+            print(f"Error installing version: {e}")
+            return False
 
     def set_current_version(self, package_id: int, version_number: str) -> bool:
         """Set a specific version as the current version for a package"""
-        # First unset any current versions
-        self._unset_other_current_versions(package_id, version_number)
+        if not self._validate_version_number(version_number):
+            print(f"Invalid version number: {version_number}")
+            return False
 
-        # Set the specified version as current
-        query = """
-        UPDATE package_installations
-        SET is_current = TRUE
-        WHERE package_id = %s AND version_number = %s
-        """
-        result = self.db.execute_query(query, (package_id, version_number))
-        return result is not None and result > 0
+        try:
+            with self.db.transaction():
+                # First unset any current versions
+                self._unset_other_current_versions(package_id, version_number)
+
+                # Set the specified version as current
+                query = """
+                UPDATE package_installations
+                SET is_current = TRUE
+                WHERE package_id = %s AND version_number = %s
+                """
+                result = self.db.execute_query(query, (package_id, version_number))
+                return result is not None and result > 0
+        except Exception as e:
+            print(f"Error setting current version: {e}")
+            return False
+
+    def _validate_package_name(self, name: str) -> bool:
+        """Validate package name"""
+        if not name or not isinstance(name, str):
+            return False
+        if len(name) > 255:  # Match VARCHAR(255) in database
+            return False
+        # Allow alphanumeric, dots, hyphens, underscores; must start with alphanumeric
+        return bool(re.match(r'^[a-zA-Z0-9][a-zA-Z0-9._-]*$', name))
+
+    def _validate_version_number(self, version: str) -> bool:
+        """Validate version number"""
+        if not version or not isinstance(version, str):
+            return False
+        if len(version) > 50:  # Match VARCHAR(50) in database
+            return False
+        # Allow alphanumeric, dots, hyphens, underscores
+        return bool(re.match(r'^[a-zA-Z0-9._-]+$', version))
 
     def _unset_other_current_versions(self, package_id: int, exclude_version: str):
         """Unset current status for all versions except the specified one"""
@@ -115,7 +159,10 @@ class PackageManager:
 
     def get_installed_versions_by_id(self, package_id: int) -> List[Dict]:
         """Get all installed versions for a package by ID"""
-        return self.get_installed_versions(self.get_package_by_id(package_id)['name']) if self.get_package_by_id(package_id) else []
+        package = self.get_package_by_id(package_id)
+        if package:
+            return self.get_installed_versions(package['name'])
+        return []
 
     def get_current_version(self, package_name: str) -> Optional[Dict]:
         """Get the currently installed version for a package"""

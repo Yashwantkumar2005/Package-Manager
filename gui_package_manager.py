@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 from package_manager import PackageManager
 import os
+import re
 
 class PackageManagerGUI:
     def __init__(self, root):
@@ -19,7 +20,7 @@ class PackageManagerGUI:
         if not os.environ.get('DB_PASSWORD'):
             os.environ['DB_PASSWORD'] = ''  # Empty default - users should set their own
         if not os.environ.get('DB_NAME'):
-            os.environ['DB_NAME'] = 'package_manager'
+            os.environ['DB_NAME'] = ''      # Empty default - users should set their own
         if not os.environ.get('DB_PORT'):
             os.environ['DB_PORT'] = '3306'
 
@@ -35,6 +36,24 @@ class PackageManagerGUI:
         self.create_widgets()
         if self.pm:
             self.refresh_package_list()
+
+    def _validate_package_name(self, name):
+        """Validate package name - matches the validation in PackageManager"""
+        if not name or not isinstance(name, str):
+            return False
+        if len(name) > 255:  # Match VARCHAR(255) in database
+            return False
+        # Allow alphanumeric, dots, hyphens, underscores; must start with alphanumeric
+        return bool(re.match(r'^[a-zA-Z0-9][a-zA-Z0-9._-]*$', name))
+
+    def _validate_version_number(self, version):
+        """Validate version number - matches the validation in PackageManager"""
+        if not version or not isinstance(version, str):
+            return False
+        if len(version) > 50:  # Match VARCHAR(50) in database
+            return False
+        # Allow alphanumeric, dots, hyphens, underscores
+        return bool(re.match(r'^[a-zA-Z0-9._-]+$', version))
 
     def create_widgets(self):
         # Main frame
@@ -198,6 +217,10 @@ class PackageManagerGUI:
 
         name = simpledialog.askstring("Add Package", "Enter package name:")
         if not name:
+            return
+
+        if not self._validate_package_name(name):
+            messagebox.showerror("Invalid Input", f"Package name '{name}' is invalid. \n\nRules:\n- Must start with a letter or number\n- Can contain letters, numbers, dots, hyphens, and underscores\n- Maximum 255 characters")
             return
 
         description = simpledialog.askstring("Add Package", "Enter package description (optional):")
