@@ -57,7 +57,7 @@ A desktop application for managing software packages and their versions, built w
 
 ---
 
-## ⚠️ Required: Configure Your Database Credentials
+## Required: Configure Your Database Credentials
 
 **The application will not launch until you fill in your database credentials.** The source files ship with blank credential fields — you must update them manually before running.
 
