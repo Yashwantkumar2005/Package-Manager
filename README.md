@@ -20,7 +20,6 @@ A desktop application for managing software packages and their versions, built w
 ├── gui_package_manager.py # Tkinter GUI interface
 ├── schema.sql            # Database schema definition
 ├── requirements.txt      # Python dependencies
-├── test_package_manager.py # Unit tests for core components
 └── README.md             # This file
 ```
 
@@ -194,9 +193,3 @@ Note: These tests verify the structure and basic functionality. For full integra
 | `DB_PORT` | MySQL port | `3306` |
 
 These must be set in both `database.py` (lines 7–14 and 91–96) and `gui_package_manager.py` (lines 16–26).
-
-## Acknowledgments
-
-- Built with Python Tkinter for the GUI
-- Uses mysql-connector-python for database connectivity
-- Inspired by package management systems like npm, pip, and apt
