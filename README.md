@@ -107,12 +107,6 @@ DB_PORT =          # e.g. 3306
 
 ---
 
-### Why two files?
-
-`database.py` handles the core query logic and has its own connection setup (used directly and as a fallback), while `gui_package_manager.py` manages the connection shown in the GUI layer. Both must point to the same database.
-
----
-
 ## Usage
 
 ### Running the Application
@@ -171,16 +165,6 @@ The application uses two tables:
 - `version_number`: Version string (e.g., "1.0.0")
 - `installed_at`: Timestamp of installation
 - `is_current`: Boolean flag indicating if this is the current version
-
-## Testing
-
-Run the unit tests to verify the core functionality:
-
-```bash
-python test_package_manager.py
-```
-
-Note: These tests verify the structure and basic functionality. For full integration tests, ensure MySQL is running and configured correctly.
 
 ## Configuration Reference
 
